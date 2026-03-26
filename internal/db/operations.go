@@ -24,8 +24,6 @@ func nowISO() string {
 // NOTA: "2006-01-02T15:04:05Z" parece una fecha random pero es
 // la forma de Go de definir formatos de fecha. Usa una fecha de referencia
 // fija (Mon Jan 2 15:04:05 MST 2006) donde cada número es único.
-// En TS usarías: new Date().toISOString()
-// En Python: datetime.utcnow().isoformat() + "Z"
 
 // generateSessionID crea un ID legible para sesiones.
 // Formato: session-20260324-143022-a7f3b2
@@ -72,8 +70,7 @@ func (db *DB) CreateProject(p models.Project) error {
 }
 
 // GetProject obtiene un proyecto por ID.
-// Retorna el proyecto y un bool indicando si se encontró.
-// En TS harías: Project | undefined. En Go: (Project, bool, error).
+// Retorna el proyecto, un bool indicando si se encontró, y un error.
 func (db *DB) GetProject(id string) (models.Project, bool, error) {
 	var p models.Project
 	var path, gitRemote, workspace sql.NullString
@@ -343,10 +340,7 @@ func (db *DB) Search(input models.SearchInput) ([]models.SearchResult, error) {
 	safeQuery := sanitizeFTSQuery(input.Query)
 
 	// Construir el query SQL dinámicamente según los filtros.
-	// En TS usarías un query builder. En Go se construye el string
-	// y se agregan parámetros a un slice (para evitar SQL injection).
-	//
-	// Los ? son placeholders — Go los reemplaza con los valores de args.
+	// Los ? son placeholders — se reemplazan con los valores de args.
 	// NUNCA concatenes valores directamente en el SQL.
 	query := `
 		SELECT o.id, o.session_id, o.project_id, o.scope, o.category,
@@ -362,7 +356,6 @@ func (db *DB) Search(input models.SearchInput) ([]models.SearchResult, error) {
 		  AND o.is_active = 1`
 
 	// args es un slice de interface{} — puede contener cualquier tipo.
-	// Es como any[] en TypeScript.
 	args := []interface{}{safeQuery}
 
 	if input.Category != nil {
@@ -388,7 +381,6 @@ func (db *DB) Search(input models.SearchInput) ([]models.SearchResult, error) {
 	args = append(args, limit)
 
 	// Ejecutar query. db.conn.Query devuelve un iterador de filas.
-	// En TS sería como un cursor que recorres con .next()
 	rows, err := db.conn.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error en búsqueda FTS5: %w", err)
@@ -906,4 +898,64 @@ func (db *DB) GetStats() (Stats, error) {
 	}
 
 	return s, nil
+}
+
+// GetRecentSessionsFiltered obtiene sesiones con filtro opcional de estado.
+// Es un método público (mayúscula) pero con nombre en minúscula
+// porque lo usaremos internamente desde el paquete mcp.
+func (db *DB) GetRecentSessionsFiltered(projectID *string, status string, limit int) []models.Session {
+	query := "SELECT id, project_id, started_at, ended_at, status, objectives, summary, tasks_completed, files_touched, compaction_count FROM sessions WHERE 1=1"
+	args := []interface{}{}
+
+	if projectID != nil {
+		query += " AND project_id = ?"
+		args = append(args, *projectID)
+	}
+	if status != "" {
+		query += " AND status = ?"
+		args = append(args, status)
+	}
+
+	query += " ORDER BY started_at DESC LIMIT ?"
+	args = append(args, limit)
+
+	rows, err := db.conn.Query(query, args...)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var sessions []models.Session
+	for rows.Next() {
+		var s models.Session
+		var projID, endedAt, summary sql.NullString
+		var objectives, tasks, files, startedAt string
+
+		err := rows.Scan(
+			&s.ID, &projID, &startedAt, &endedAt, &s.Status,
+			&objectives, &summary, &tasks, &files, &s.CompactionCount,
+		)
+		if err != nil {
+			continue
+		}
+
+		s.StartedAt, _ = time.Parse("2006-01-02T15:04:05Z", startedAt)
+		if projID.Valid {
+			s.ProjectID = &projID.String
+		}
+		if endedAt.Valid {
+			t, _ := time.Parse("2006-01-02T15:04:05Z", endedAt.String)
+			s.EndedAt = &t
+		}
+		if summary.Valid {
+			s.Summary = &summary.String
+		}
+		s.Objectives = fromJSON(objectives)
+		s.TasksCompleted = fromJSON(tasks)
+		s.FilesTouched = fromJSON(files)
+
+		sessions = append(sessions, s)
+	}
+
+	return sessions
 }

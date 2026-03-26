@@ -11,7 +11,6 @@ import (
 	// Este paquete se registra como driver de SQLite al importarse.
 	// Sin esta línea, sql.Open("sqlite", ...) fallaría porque
 	// Go no sabría qué driver usar.
-	// En TS sería como: import 'sqlite3/register'
 	_ "modernc.org/sqlite"
 )
 
@@ -88,7 +87,6 @@ func OpenAt(dbPath string) (*DB, error) {
 
 	// Crear instancia de DB
 	// &DB{...} crea el struct y devuelve un puntero a él.
-	// En TS sería: return new DB(conn, dbPath)
 	db := &DB{
 		conn: conn,
 		path: dbPath,
