@@ -1,0 +1,43 @@
+version: 2
+
+project_name: bitacora
+
+builds:
+  - main: ./cmd/bitacora
+    binary: bitacora
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+brews:
+  - repository:
+      owner: florelmx
+      name: homebrew-tap
+    homepage: "https://github.com/florelmx/bitacora"
+    description: "Ship's log for AI agents. Persistent memory that survives between sessions."
+    license: "MIT"
+    install: |
+      bin.install "bitacora"

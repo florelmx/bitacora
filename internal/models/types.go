@@ -87,7 +87,7 @@ type Session struct {
 }
 
 type Observation struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 	SessionID string `json:"session_id"`
 	ProjectID *string `json:"project_id,omitempty"`
 	Scope Scope `json:"scope"`

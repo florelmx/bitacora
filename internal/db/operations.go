@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 	
@@ -401,8 +402,10 @@ func (db *DB) Search(input models.SearchInput) ([]models.SearchResult, error) {
 		var isActive int
 		var effectiveScore float64
 
+		var obsID string
+
 		err := rows.Scan(
-			&o.ID, &o.SessionID, &projectID, &scope, &category,
+			&obsID, &o.SessionID, &projectID, &scope, &category,
 			&o.Title, &o.Content, &tags, &files,
 			&o.RelevanceScore, &o.AccessCount, &lastAccessed,
 			&supersededBy, &isActive, &createdAt, &updatedAt,
@@ -411,6 +414,8 @@ func (db *DB) Search(input models.SearchInput) ([]models.SearchResult, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error escaneando resultado: %w", err)
 		}
+
+		o.ID, _ = strconv.Atoi(obsID)
 
 		// Mapear campos (mismo patrón que scanObservation)
 		o.Scope = models.Scope(scope)
