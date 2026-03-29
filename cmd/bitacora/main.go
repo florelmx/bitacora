@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/spf13/cobra"
 
 	"github.com/florelmx/bitacora/internal/db"
 	mcpserver "github.com/florelmx/bitacora/internal/mcp"
@@ -111,6 +111,14 @@ var contextCmd = &cobra.Command{
 		if len(ctx.Notes) > 0 {
 			fmt.Printf("### Notas (%d)\n", len(ctx.Notes))
 			for _, o := range ctx.Notes {
+				fmt.Printf("- #%d: %s\n", o.ID, o.Title)
+			}
+			fmt.Println()
+		}
+
+		if len(ctx.Preferences) > 0 {
+			fmt.Printf("### Preferencias (%d)\n", len(ctx.Preferences))
+			for _, o := range ctx.Preferences {
 				fmt.Printf("- #%d: %s\n", o.ID, o.Title)
 			}
 			fmt.Println()

@@ -13,12 +13,12 @@ const (
 type Category string
 
 const (
-    CategoryDecision   Category = "decision"
-    CategoryBug        Category = "bug"
-    CategoryPattern    Category = "pattern"
-    CategoryNote       Category = "note"
-    CategoryRequest    Category = "request"
-    CategoryPreference Category = "preference"
+	CategoryDecision   Category = "decision"
+	CategoryBug        Category = "bug"
+	CategoryPattern    Category = "pattern"
+	CategoryNote       Category = "note"
+	CategoryRequest    Category = "request"
+	CategoryPreference Category = "preference"
 )
 
 type SessionStatus string
@@ -64,45 +64,45 @@ const (
 // ------------------------------
 
 type Project struct {
-	ID string `json:"id"`
-	Name string `json:"name"`
-	Path *string `json:"path,omitempty"`
-	GitRemote *string `json:"git_remote,omitempty"`
-	Workspace *string `json:"workpace,omitempty"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Path      *string   `json:"path,omitempty"`
+	GitRemote *string   `json:"git_remote,omitempty"`
+	Workspace *string   `json:"workpace,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Session struct {
-	ID string `json:"id"`
-	ProjectID *string `json:"project_id,omitempty"`
-	StartedAt time.Time `json:"started_at"`
-	EndedAt *time.Time `json:"ended_at,omitempty"`
-	Status SessionStatus `json:"status"`
-	Objectives []string `json:"objectives"`
-	Summary *string `json:"summary,omitempty"`
-	TasksCompleted []string `json:"tasks_completed"`
-	FilesTouched []string `json:"files_touched"`
-	CompactionCount int `json:"compaction_count"`
+	ID              string        `json:"id"`
+	ProjectID       *string       `json:"project_id,omitempty"`
+	StartedAt       time.Time     `json:"started_at"`
+	EndedAt         *time.Time    `json:"ended_at,omitempty"`
+	Status          SessionStatus `json:"status"`
+	Objectives      []string      `json:"objectives"`
+	Summary         *string       `json:"summary,omitempty"`
+	TasksCompleted  []string      `json:"tasks_completed"`
+	FilesTouched    []string      `json:"files_touched"`
+	CompactionCount int           `json:"compaction_count"`
 }
 
 type Observation struct {
-	ID int `json:"id"`
-	SessionID string `json:"session_id"`
-	ProjectID *string `json:"project_id,omitempty"`
-	Scope Scope `json:"scope"`
-	Category Category `json:"category"`
-	Title string `json:"title"`
-	Content string `json:"content"`
-	Tags []string `json:"tags"`
-	Files []string `json:"files"`
-	RelevanceScore float64 `json:"relevance_score"`
-	AccessCount int `json:"access_count"`
+	ID             int        `json:"id"`
+	SessionID      string     `json:"session_id"`
+	ProjectID      *string    `json:"project_id,omitempty"`
+	Scope          Scope      `json:"scope"`
+	Category       Category   `json:"category"`
+	Title          string     `json:"title"`
+	Content        string     `json:"content"`
+	Tags           []string   `json:"tags"`
+	Files          []string   `json:"files"`
+	RelevanceScore float64    `json:"relevance_score"`
+	AccessCount    int        `json:"access_count"`
 	LastAccessedAt *time.Time `json:"last_accessed_at,omitempty"`
-	SupersededBy *int `json:"superseded_by,omitempty"`
-	IsActive bool `json:"is_active"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	SupersededBy   *int       `json:"superseded_by,omitempty"`
+	IsActive       bool       `json:"is_active"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
 type Relation struct {
@@ -172,7 +172,7 @@ type ContextInput struct {
 
 type SearchResult struct {
 	Observation    Observation `json:"observation"`
-	EffectiveScore float64    `json:"effective_score"`
+	EffectiveScore float64     `json:"effective_score"`
 }
 
 type ContextResponse struct {
@@ -181,9 +181,7 @@ type ContextResponse struct {
 	Bugs            []Observation `json:"bugs"`
 	Patterns        []Observation `json:"patterns"`
 	Notes           []Observation `json:"notes"`
+	Preferences     []Observation `json:"preferences"`
 	PendingRequests []UserRequest `json:"pending_requests"`
 	TotalItems      int           `json:"total_items"`
 }
-	
-	
-	

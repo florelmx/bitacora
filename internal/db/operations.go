@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	
+
 	"github.com/florelmx/bitacora/internal/models"
 )
 
@@ -672,6 +672,7 @@ func (db *DB) GetContext(input models.ContextInput) (models.ContextResponse, err
 	ctx.Bugs = db.getObservationsByCategory("bug", input.Project, input.Workspace, perCategory)
 	ctx.Patterns = db.getObservationsByCategory("pattern", input.Project, input.Workspace, perCategory)
 	ctx.Notes = db.getObservationsByCategory("note", input.Project, input.Workspace, perCategory)
+	ctx.Preferences = db.getObservationsByCategory("preference", input.Project, input.Workspace, perCategory)
 
 	// Peticiones pendientes
 	if input.IncludeRequests {
@@ -680,7 +681,7 @@ func (db *DB) GetContext(input models.ContextInput) (models.ContextResponse, err
 	}
 
 	ctx.TotalItems = len(ctx.RecentSessions) + len(ctx.Decisions) +
-		len(ctx.Bugs) + len(ctx.Patterns) + len(ctx.Notes) + len(ctx.PendingRequests)
+		len(ctx.Bugs) + len(ctx.Patterns) + len(ctx.Notes) + len(ctx.Preferences) + len(ctx.PendingRequests)
 
 	return ctx, nil
 }
@@ -850,16 +851,16 @@ func (db *DB) SaveSnapshot(sessionID string, snapshotType string, summary string
 
 // Stats devuelve estadísticas generales del sistema.
 type Stats struct {
-	TotalObservations int            `json:"total_observations"`
-	ActiveObservations int           `json:"active_observations"`
-	TotalSessions     int            `json:"total_sessions"`
-	ActiveSessions    int            `json:"active_sessions"`
-	TotalRequests     int            `json:"total_requests"`
-	PendingRequests   int            `json:"pending_requests"`
-	TotalRelations    int            `json:"total_relations"`
-	TotalProjects     int            `json:"total_projects"`
-	ByCategory        map[string]int `json:"by_category"`
-	ByScope           map[string]int `json:"by_scope"`
+	TotalObservations  int            `json:"total_observations"`
+	ActiveObservations int            `json:"active_observations"`
+	TotalSessions      int            `json:"total_sessions"`
+	ActiveSessions     int            `json:"active_sessions"`
+	TotalRequests      int            `json:"total_requests"`
+	PendingRequests    int            `json:"pending_requests"`
+	TotalRelations     int            `json:"total_relations"`
+	TotalProjects      int            `json:"total_projects"`
+	ByCategory         map[string]int `json:"by_category"`
+	ByScope            map[string]int `json:"by_scope"`
 }
 
 func (db *DB) GetStats() (Stats, error) {
